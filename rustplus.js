@@ -47,7 +47,7 @@ class RustPlus extends EventEmitter {
         protobuf.load(path.resolve(__dirname, "rustplus.proto")).then((root) => {
 
             // make sure existing connection is disconnected before connecting again.
-            if(this.websocket){
+            if (this.websocket) {
                 this.disconnect();
             }
 
@@ -73,14 +73,14 @@ class RustPlus extends EventEmitter {
             });
 
             this.websocket.on('message', (data) => {
+                if (data.length < 10) {
+                    const paddedData = Buffer.alloc(10);
+                    data.copy(paddedData);
+                    data = paddedData;
+                }
 
                 // decode received message
-                try {
-                    var message = this.AppMessage.decode(data);
-                }
-                catch (e) {
-                    return;
-                }
+                var message = this.AppMessage.decode(data);
 
                 // check if received message is a response and if we have a callback registered for it
                 if (message.response && message.response.seq && this.seqCallbacks[message.response.seq]) {
@@ -95,7 +95,7 @@ class RustPlus extends EventEmitter {
                     delete this.seqCallbacks[message.response.seq];
 
                     // if callback returns true, don't fire message event
-                    if(result){
+                    if (result) {
                         return;
                     }
 
@@ -119,7 +119,7 @@ class RustPlus extends EventEmitter {
      * Disconnect from the Rust Server.
      */
     disconnect() {
-        if(this.websocket){
+        if (this.websocket) {
             this.websocket.terminate();
             this.websocket = null;
         }
@@ -144,7 +144,7 @@ class RustPlus extends EventEmitter {
         let currentSeq = ++this.seq;
 
         // save callback if provided
-        if(callback){
+        if (callback) {
             this.seqCallbacks[currentSeq] = callback;
         }
 
@@ -183,7 +183,7 @@ class RustPlus extends EventEmitter {
                 // cancel timeout
                 clearTimeout(timeout);
 
-                if(message.response.error){
+                if (message.response.error) {
 
                     // reject promise if server returns an AppError for this request
                     reject(message.response.error);
@@ -282,7 +282,7 @@ class RustPlus extends EventEmitter {
             },
         }, callback);
     }
-    
+
     /**
      * Get the ingame time
     */
