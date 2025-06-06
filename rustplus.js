@@ -73,12 +73,6 @@ class RustPlus extends EventEmitter {
             });
 
             this.websocket.on('message', (data) => {
-                if (data.length < 10) {
-                    const paddedData = Buffer.alloc(10);
-                    data.copy(paddedData);
-                    data = paddedData;
-                }
-
                 // decode received message
                 var message = this.AppMessage.decode(data);
 
