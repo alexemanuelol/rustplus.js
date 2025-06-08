@@ -74,10 +74,11 @@ class RustPlus extends EventEmitter {
 
             this.websocket.on('message', (data) => {
                 // decode received message
-                var message = this.AppMessage.decode(data);
+                var message;
+                try { message = this.AppMessage.decode(data); } catch (e) { this.emit('error', e }
 
                 // check if received message is a response and if we have a callback registered for it
-                if (message.response && message.response.seq && this.seqCallbacks[message.response.seq]) {
+                if (message && message.response && message.response.seq && this.seqCallbacks[message.response.seq]) {
 
                     // get the callback for the response sequence
                     var callback = this.seqCallbacks[message.response.seq];
@@ -96,8 +97,8 @@ class RustPlus extends EventEmitter {
                 }
 
                 // fire message event for received messages that aren't handled by callback
-                this.emit('message', this.AppMessage.decode(data));
-
+                if (message) { this.emit('message', message) }
+                
             });
 
             // fire event when disconnected
